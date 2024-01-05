@@ -24,6 +24,7 @@ INSTALLED_APPS = [
     'rest_framework.authtoken',
     'djoser',
     'users.apps.UsersConfig',
+    'poster.apps.PosterConfig',
 
 ]
 

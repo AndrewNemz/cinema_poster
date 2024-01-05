@@ -19,12 +19,19 @@ class User(AbstractUser):
         (MODERATOR, 'Модератор'),
     )
 
+    username = models.CharField(
+        'Никнейм',
+        max_length=14,
+        unique=True,
+    )
+
     bio = models.TextField(
         'Биография',
         blank=True,
     )
     role = models.CharField(
-        'Роль', max_length=20,
+        'Роль', 
+        max_length=20,
         choices=USER_ROLES,
         default=USER
     )
