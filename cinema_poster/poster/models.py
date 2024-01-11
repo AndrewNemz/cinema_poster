@@ -78,7 +78,6 @@ class Movie(models.Model):
 
     name = models.TextField(
         verbose_name='Название фильма',
-        unique=True,
         max_length=256,
     )
     author = models.CharField(
