@@ -22,12 +22,14 @@ class GenreSerializer(serializers.ModelSerializer):
     '''
     Сериализатор для жанров.
     '''
+
+    id = serializers.PrimaryKeyRelatedField(queryset=Genre.objects.all())
+
     class Meta:
         model = Genre
         fields = (
             'id',
             'name',
-            'slug',
         )
 
 
@@ -48,10 +50,6 @@ class MoviesInCinemaSerializer(serializers.ModelSerializer):
         )
 
 
-class ShowCinemaMovies(serializers.ModelSerializer):
-    pass
-
-
 class CinemasSerializer(serializers.ModelSerializer):
     '''
     Сериализатор для кинотеатров.
@@ -69,6 +67,19 @@ class CinemasSerializer(serializers.ModelSerializer):
             'web_site',
         )
 
+    def validate(self, data):
+        movies = data['movies']
+        movies_list = []
+        for movie in movies:
+            if movie in movies_list:
+                raise serializers.ValidationError(
+                    {
+                        'movies': f'В базе кинотеатра уже есть фильм {movie["name"]}'
+                    }
+                )
+            movies_list.append(movie)
+        return data
+    
     @staticmethod
     def create_movies(movies, cinema):
         movies_list = []
@@ -85,9 +96,68 @@ class CinemasSerializer(serializers.ModelSerializer):
         cinema = Cinema.objects.create(**validated_data)
         self.create_movies(movies, cinema)
         return cinema
-    
-    def to_representation(self, instance):
-        pass
 
     def update(self, instance, validated_data):
-        pass
+        CinemaMovies.objects.filter(cinema=instance).delete()
+        self.create_movies(validated_data.pop('movies'), instance)
+        return super().update(instance, validated_data)
+
+
+class MoviesSerializer(serializers.ModelSerializer):
+    '''
+    Сериализатор для создания фильмов.
+    '''
+
+    genre = serializers.PrimaryKeyRelatedField(
+        queryset=Genre.objects.all(),
+        many=True
+    )
+
+    class Meta:
+        model = Movie
+        fields = (
+            'id',
+            'name',
+            'author',
+            'actors',
+            'tag',
+            'genre',
+        )
+
+    def validate(self, data):
+        genre = data['genre']
+        genres_list = []
+        if not genre:
+            raise serializers.ValidationError(
+                {
+                    'genre': 'У фильма должен быть жанр.'
+                }
+            )
+        for gen in genre:
+            if gen in genres_list:
+                raise serializers.ValidationError(
+                {
+                    'genre': 'У фильма уже есть такой жанр.'
+                }
+            )
+            genres_list.append(gen)
+        return data
+
+    @staticmethod
+    def create_genres(genres, movie):
+        for genre in genres:
+            movie.genre.add(genre)
+
+    def create(self, validated_data):
+        genres = validated_data.pop('genre')
+        movie = Movie.objects.create(**validated_data)
+        self.create_genres(genres, movie)
+        return movie
+
+    def update(self, instance, validated_data):
+        instance.genre.clear()
+        self.create_genres(validated_data.pop('genre'), instance)
+        return super().update(instance, validated_data)
+    
+    '''def to_representation(self, instance):
+        pass'''

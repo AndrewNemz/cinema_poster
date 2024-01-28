@@ -1,8 +1,8 @@
 from rest_framework import viewsets 
 from rest_framework.permissions import (SAFE_METHODS, AllowAny,
                                         IsAuthenticated, IsAdminUser)
-from poster.models import Tag, Genre, Cinema
-from poster.serielizers import TagSerializer, GenreSerializer, CinemasSerializer
+from poster.models import Tag, Genre, Cinema, Movie
+from poster.serielizers import TagSerializer, GenreSerializer, CinemasSerializer, MoviesSerializer
 from poster.permissions import IsAdminOrReadOnly
 
 
@@ -37,5 +37,18 @@ class CinemasViewSet(viewsets.ModelViewSet):
     
     queryset = Cinema.objects.all()
     serializer_class = CinemasSerializer
+    permission_classes = (IsAdminOrReadOnly,)
+    pagination_class = None
+
+
+class MoviesViewSet(viewsets.ModelViewSet):
+    '''
+    ViewSet для работы с фильмами.
+    Списки кинотеатров доступны всем.
+    Post запросы только для admin.
+    '''
+    
+    queryset = Movie.objects.all()
+    serializer_class = MoviesSerializer
     permission_classes = (IsAdminOrReadOnly,)
     pagination_class = None

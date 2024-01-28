@@ -54,7 +54,6 @@ class Genre(models.Model):
 
     name = models.CharField(
         verbose_name='Название фильма',
-        unique=True,
         max_length=24,
     )
     slug = models.SlugField(
@@ -109,7 +108,7 @@ class Movie(models.Model):
         return self.name
 
 
-class Cinema(models.Model):
+class Cinema(models.Model):                                  # добавить слаг для моделей кино и фильмов для уникальности?
     '''
     Модель для информации и кинотеатре.
     '''
@@ -188,6 +187,9 @@ class MovieRate(models.Model):
         related_name='movie_rate',
         on_delete=models.CASCADE,
     )
+    '''
+    user!!!!!!!!!!!!!
+    '''
     rating = models.IntegerField(
         validators=[
             validators.MinValueValidator(
