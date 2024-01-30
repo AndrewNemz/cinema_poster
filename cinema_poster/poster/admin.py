@@ -63,6 +63,7 @@ class CinemaMoviesAdmin(admin.ModelAdmin):
 @admin.register(MovieRate)
 class MovieRateAdmin(admin.ModelAdmin):
     list_display = (
+        'user',
         'movie',
         'rating',
     )

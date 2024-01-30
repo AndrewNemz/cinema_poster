@@ -1,5 +1,6 @@
 from django.db import models
 from django.core import validators
+from users.models import User
 
 
 class Tag(models.Model):
@@ -187,9 +188,14 @@ class MovieRate(models.Model):
         related_name='movie_rate',
         on_delete=models.CASCADE,
     )
-    '''
-    user!!!!!!!!!!!!!
-    '''
+    
+    user = models.ForeignKey(
+        User,
+        verbose_name='Пользователь',
+        on_delete=models.CASCADE,
+        related_name='movie_rate'
+    )
+    
     rating = models.IntegerField(
         validators=[
             validators.MinValueValidator(
@@ -205,6 +211,12 @@ class MovieRate(models.Model):
     )
 
     class Meta:
+        constraints = (
+            models.UniqueConstraint(
+                fields=('movie', 'user',),
+                name='unique_movie_rating',
+            ),
+        )
         verbose_name = 'Рейтинг фильма'
         verbose_name_plural = 'Рейтинги фильмов'
 

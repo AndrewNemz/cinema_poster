@@ -161,3 +161,27 @@ class MoviesSerializer(serializers.ModelSerializer):
     
     '''def to_representation(self, instance):
         pass'''
+
+
+class RatingSerializer(serializers.ModelSerializer):
+    '''
+    Сериализатор для просмотра рейтинга фильма.
+    '''
+
+    movie = serializers.SlugRelatedField(
+        slug_field='name',
+        read_only=True,
+    )
+    user = serializers.SlugRelatedField(
+        slug_field='username',
+        read_only=True
+    )
+
+    class Meta:
+        model = MovieRate
+        fields = (
+            'id',
+            'movie',
+            'user',
+            'rating',
+        )
