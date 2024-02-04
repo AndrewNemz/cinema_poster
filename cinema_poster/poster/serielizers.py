@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from rest_framework.fields import SerializerMethodField
 from django.shortcuts import get_object_or_404
+from django.db.models import Avg
 from poster.models import Tag, Genre, MovieRate, Cinema, Movie, CinemaMovies
 
 
@@ -103,6 +104,31 @@ class CinemasSerializer(serializers.ModelSerializer):
         return super().update(instance, validated_data)
 
 
+class ShowMovieSerializer(serializers.ModelSerializer):
+    '''
+    Сериализатор для отображения информации о фильме.
+    '''
+
+    rating = serializers.SerializerMethodField(read_only=True)
+    tag = serializers.StringRelatedField(read_only=True)
+    genre = serializers.StringRelatedField(read_only=True, many=True)
+
+    class Meta:
+        model = Movie
+        fields = (
+            'id',
+            'name',
+            'author',
+            'actors',
+            'genre',
+            'tag',
+            'rating',
+        )
+
+    def get_rating(self, obj):
+        return obj.movie_rate.all().aggregate(Avg('rating'))
+
+
 class MoviesSerializer(serializers.ModelSerializer):
     '''
     Сериализатор для создания фильмов.
@@ -159,8 +185,10 @@ class MoviesSerializer(serializers.ModelSerializer):
         self.create_genres(validated_data.pop('genre'), instance)
         return super().update(instance, validated_data)
     
-    '''def to_representation(self, instance):
-        pass'''
+    def to_representation(self, instance):
+        request = self.context.get('request')
+        context = {'request': request}
+        return ShowMovieSerializer(instance, context=context).data
 
 
 class RatingSerializer(serializers.ModelSerializer):
