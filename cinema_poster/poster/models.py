@@ -222,3 +222,35 @@ class MovieRate(models.Model):
 
     def __str__(self):
         return self.movie.name
+
+
+class FavoriteMovie(models.Model):
+    '''
+    Модель для фильмов, которые планируются к просмотру.
+    '''
+
+    movie = models.ForeignKey(
+        Movie,
+        verbose_name='фильм',
+        related_name='favorite',
+        on_delete=models.CASCADE,
+    )
+    user = models.ForeignKey(
+        User,
+        verbose_name='пользователь',
+        related_name='favorite',
+        on_delete=models.CASCADE,
+    )
+
+    class Meta:
+        constraints = (
+            models.UniqueConstraint(
+                fields=('movie', 'user',),
+                name='unique_favorite_movie',
+            ),
+        )
+        verbose_name='Избранный фильм'
+        verbose_name_plural='Избранные фильмы'
+
+    def __str__(self):
+        return self.movie.name

@@ -2,7 +2,7 @@ from rest_framework import serializers
 from rest_framework.fields import SerializerMethodField
 from django.shortcuts import get_object_or_404
 from django.db.models import Avg
-from poster.models import Tag, Genre, MovieRate, Cinema, Movie, CinemaMovies
+from poster.models import Tag, Genre, MovieRate, Cinema, Movie, CinemaMovies, FavoriteMovie
 
 
 class TagSerializer(serializers.ModelSerializer):
@@ -191,12 +191,12 @@ class MoviesSerializer(serializers.ModelSerializer):
         return ShowMovieSerializer(instance, context=context).data
 
 
-class RatingSerializer(serializers.ModelSerializer):
+class RatingSerializer(serializers.ModelSerializer):                          # сослаться на shortshowmovieserializer
     '''
     Сериализатор для просмотра рейтинга фильма.
     '''
 
-    movie = serializers.SlugRelatedField(
+    movie = serializers.SlugRelatedField(                                      # вместо string field сделать primary key
         slug_field='name',
         read_only=True,
     )
@@ -213,3 +213,61 @@ class RatingSerializer(serializers.ModelSerializer):
             'user',
             'rating',
         )
+
+
+class ShowFavoriteSerializer(serializers.ModelSerializer):
+    '''
+    Сериализатор для отображения избранных фильмов.
+    '''
+    
+    movie = serializers.SlugRelatedField(
+        slug_field='name',
+        read_only=True,
+    )
+    user = serializers.SlugRelatedField(
+        slug_field='username',
+        read_only=True
+    )
+
+    class Meta:
+        model = FavoriteMovie
+        fields = (
+            'id',
+            'user',
+            'movie'
+        )
+
+
+class FavoriteSerializer(serializers.ModelSerializer):
+    '''
+    Сериализатор для избранных фильмов.
+    '''
+
+    class Meta:
+        model = FavoriteMovie
+        fields =(
+            'id',
+            'user',
+            'movie'
+        )
+
+    def validate(self, data):
+        movie = data['movie']
+        request = self.context.get('request')
+        if not request or request.user.is_anonymous:
+            return False
+        if FavoriteMovie.objects.filter(
+            movie=movie,
+            user=request.user
+        ).exists():
+            raise serializers.ValidationError(
+                {
+                    'status': 'Вы уже добавили фильм в избранные.'
+                }
+            )
+        return data
+    
+    def to_representation(self, instance):
+        request = self.context.get('request')
+        context = {'request': request}
+        return ShowFavoriteSerializer(instance, context=context).data

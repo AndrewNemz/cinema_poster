@@ -2,8 +2,8 @@ from rest_framework import viewsets
 from django.shortcuts import get_object_or_404
 from rest_framework.permissions import (SAFE_METHODS, AllowAny,
                                         IsAuthenticated, IsAdminUser, IsAuthenticatedOrReadOnly)
-from poster.models import Tag, Genre, Cinema, Movie, MovieRate
-from poster.serielizers import TagSerializer, GenreSerializer, CinemasSerializer, MoviesSerializer, RatingSerializer
+from poster.models import Tag, Genre, Cinema, Movie, MovieRate, FavoriteMovie
+from poster.serielizers import TagSerializer, GenreSerializer, CinemasSerializer, MoviesSerializer, RatingSerializer, FavoriteSerializer
 from poster.permissions import IsAdminOrReadOnly, IsOwnerOrReadOnly
 
 
@@ -73,3 +73,24 @@ class RatingViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         movie = get_object_or_404(Movie, pk=self.kwargs.get('movie_id'))
         return movie.movie_rate.all()
+    
+
+class FavoriteMovieViewSet(viewsets.ModelViewSet):
+    '''
+    Сериализатор для избранных фильмов.
+    Добавлять фильмы в избранное может только зарегестрированный пользователь.
+    '''
+
+    queryset = FavoriteMovie.objects.all()
+    serializer_class = FavoriteSerializer
+    permission_classes = (IsAuthenticated, IsOwnerOrReadOnly)
+    pagination_class = None
+
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)
+    
+    def get_queryset(self):
+        user = self.request.user
+        return user.favorite.all()
+
+

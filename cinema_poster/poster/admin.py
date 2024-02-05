@@ -1,7 +1,7 @@
 from django.contrib import admin
 
 from .models import (Tag, Genre, Movie, 
-                    Cinema, CinemaMovies, MovieRate)
+                    Cinema, CinemaMovies, MovieRate, FavoriteMovie)
 
 
 @admin.register(Tag)
@@ -66,4 +66,13 @@ class MovieRateAdmin(admin.ModelAdmin):
         'user',
         'movie',
         'rating',
+    )
+
+
+@admin.register(FavoriteMovie)
+class FavoriteMovieAdmin(admin.ModelAdmin):
+    list_display = (
+        'id',
+        'user',
+        'movie',
     )
