@@ -138,7 +138,7 @@ POST запрос
 ```json
 {
     "email": "test@mail.ru",
-    "username": "test user"
+    "password": "test password"
 }
 ```
 
