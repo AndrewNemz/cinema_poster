@@ -269,11 +269,10 @@ class RatingSerializer(serializers.ModelSerializer):
         if MovieRate.objects.filter(
             movie=movie,
             user=request.user,
-            rating=rating
         ).exists():
             raise serializers.ValidationError(
                 {
-                    'status': 'Вы уже ставили оценку фильму.'
+                    'status': 'Вы уже ставили такую оценку фильму.'
                 }
             )
         return data

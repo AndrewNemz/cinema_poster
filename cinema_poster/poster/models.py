@@ -109,7 +109,7 @@ class Movie(models.Model):
         return self.name
 
 
-class Cinema(models.Model):                                  # добавить слаг для моделей кино и фильмов для уникальности?
+class Cinema(models.Model):
     '''
     Модель для информации и кинотеатре.
     '''
@@ -213,7 +213,7 @@ class MovieRate(models.Model):
     class Meta:
         constraints = (
             models.UniqueConstraint(
-                fields=('movie', 'user',),
+                fields=('movie', 'user'),
                 name='unique_movie_rating',
             ),
         )
