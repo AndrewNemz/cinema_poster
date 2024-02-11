@@ -33,7 +33,7 @@
 ```
 git clone https://github.com/Turianpy/api_yamdb
 
-cd api_yamdb
+cd cinema_poster
 ```
 
 ### Cоздать и активировать виртуальное окружение:
@@ -64,7 +64,7 @@ pip install -r requirements.txt
 ### Выполнить миграции:
 
 ```
-cd api_yamdb
+cd cinema_poster
 python3 manage.py migrate
 ```
 
