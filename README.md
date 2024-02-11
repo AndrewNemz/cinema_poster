@@ -1,3 +1,12 @@
+# Технологии
+
++ Python 3.7
++ Django 3.2
++ DRF
++ RESTApi
++ Djoser
++ SQLite
+
 # Описание проекта Cinema_poster
 
   Пет-проект cinema_poster - киноафиша. В базе данных проекта могут храниться списки кинотеатров, 
@@ -90,3 +99,308 @@ http://127.0.0.1:8000/admin
 
 # Примеры запросов:
 
+### Регистрация нового пользователя
+
+#### url:
+```
+http://127.0.0.1:8000/api/users/
+```
+POST запрос
+```json
+ {
+    "username": "test user",
+    "first_name": "test_name",
+    "last_name": "test last_name",
+    "password": "test password",
+    "email": "test@mail.ru"
+}
+```
+
+ответ JSON:
+
+```json
+{
+    "email": "test@mail.ru",
+    "id": 4,
+    "username": "test user",
+    "first_name": "test_name",
+    "last_name": "test last_name"
+}
+```
+
+### Получение токена авторизации
+
+#### url:
+```
+http://127.0.0.1:8000/api/users/
+```
+POST запрос
+```json
+{
+    "email": "test@mail.ru",
+    "username": "test user"
+}
+```
+
+ответ JSON:
+
+```json
+{
+  "auth_token": "string"
+}
+
+```
+
+### Получение тэгов (доступно, если user.is_staff=True)
+
+#### url:
+```
+http://127.0.0.1:8000/api/tags/
+```
+
+JSON в GET запросе:
+
+```json
+    {
+        "id": 1,
+        "name": "18+",
+        "color": "#DC143C",
+        "slug": "18"
+    }
+```
+
+### Получение жанров (доступно, если user.is_staff=True)
+
+#### url:
+```
+http://127.0.0.1:8000/api/genres/
+```
+
+Ответ JSON:
+```json
+    {
+        "id": 5,
+        "name": "Ужасы"
+    }
+```
+
+### Получение списка кинотеатров
+
+#### url:
+```
+http://127.0.0.1:8000/api/cinemas/
+```
+
+Ответ JSON:
+```json
+    {
+            "id": 2,
+            "name": "Rodina",
+            "adress": "str, 4",
+            "movies": [
+                {
+                    "id": 5,
+                    "name": "test film 1"
+                }
+            ],
+            "web_site": "http://www.rodina.ru"
+        },
+        {
+            "id": 1,
+            "name": "Art holl",
+            "adress": "street 6, dom 5",
+            "movies": [
+                {
+                    "id": 6,
+                    "name": "test film 3"
+                },
+                {
+                    "id": 5,
+                    "name": "test film 1"
+                }
+            ],
+            "web_site": "https://www.cinemaart.com"
+        }
+```
+
+### Добавление кинотеатра (доступно, если user.is_staff=True)
+
+#### url:
+```
+http://127.0.0.1:8000/api/cinemas/
+```
+
+POST запрос:
+```json
+        {
+            "name": "cinema test",
+            "adress": "dom 5",
+            "movies": [
+                {
+                    "id": 6,
+                    "name": "test film 3"
+                }
+            ],
+            "web_site": "https://www.cinematest.com"
+        }
+```
+
+Ответ JSON:
+```json
+{
+    "id": 43,
+    "name": "cinema test",
+    "adress": "dom 5",
+    "movies": [
+        {
+            "id": 6,
+            "name": "test film 3"
+        }
+    ],
+
+
+    "web_site": "https://www.cinematest.com"
+}
+```
+
+### Получение списка фильмов
+
+#### url:
+```
+http://127.0.0.1:8000/api/movies/
+```
+
+Ответ JSON:
+```json
+        {
+            "id": 6,
+            "name": "test film 3",
+            "author": "Someone",
+            "actors": "ya ti on ona",
+            "genre": [
+                "Биография",
+                "Вестерн"
+            ],
+            "tag": "18+",
+            "rating": {
+                "rating__avg": 10.0
+            },
+            "is_favorite": true
+        },
+        {
+            "id": 5,
+            "name": "test film 1",
+            "author": "Someone",
+            "actors": "ya ti on ona",
+            "genre": [
+                "Биография",
+                "Вестерн"
+            ],
+            "tag": "18+",
+            "rating": {
+                "rating__avg": 6.0
+            },
+            "is_favorite": false
+        }
+```
+
+### Добавление оценки фильму
+
+#### url:
+```
+http://127.0.0.1:8000/api/movies/<movie_id>/rating/
+```
+
+POST запрос
+
+```json
+{
+      "movie": 6,
+      "rating": 10
+}
+
+```
+
+Ответ JSON:
+```json
+{
+    "id": 7,
+    "movie": "test film 3",
+    "user": "andy",
+    "rating": 10
+}
+```
+
+### Получение всех оценок пользователей для конкретного фильма
+
+#### url:
+
+GET запрос
+
+```
+http://127.0.0.1:8000/api/movies/<movie_id>/rating/
+```
+
+Ответ JSON:
+```json
+        {
+            "id": 3,
+            "movie": "test film 3",
+            "user": "admin",
+            "rating": 10
+        },
+        {
+            "id": 7,
+            "movie": "test film 3",
+            "user": "andy",
+            "rating": 10
+        }
+```
+
+### Добавление избранных фильмов POST запросом (доступно для зарегестрированных пользователей)
+
+#### url:
+
+POST запрос
+
+```
+http://127.0.0.1:8000/api/movies/<movie_id>/favorite/
+```
+
+Ответ JSON:
+```json
+{
+    "id": 9,
+    "user": "andy",
+    "movie": "test film 3"
+}
+```
+
+### Получение всех избранных пользователем фильмов (доступно для зарегестрированных пользователей)
+
+#### url:
+
+GET запрос
+
+```
+http://127.0.0.1:8000/api/movies/?is_favorite=1
+```
+
+Ответ JSON:
+```json
+        {
+            "id": 6,
+            "name": "test film 3",
+            "author": "Someone",
+            "actors": "ya ti on ona",
+            "genre": [
+                "Биография",
+                "Вестерн"
+            ],
+            "tag": "18+",
+            "rating": {
+                "rating__avg": 10.0
+            },
+            "is_favorite": true
+        }
+```
