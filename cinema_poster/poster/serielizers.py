@@ -112,6 +112,7 @@ class ShowMovieSerializer(serializers.ModelSerializer):
     rating = serializers.SerializerMethodField(read_only=True)
     tag = serializers.StringRelatedField(read_only=True)
     genre = serializers.StringRelatedField(read_only=True, many=True)
+    is_favorite = serializers.SerializerMethodField(read_only=True)
 
     class Meta:
         model = Movie
@@ -123,10 +124,17 @@ class ShowMovieSerializer(serializers.ModelSerializer):
             'genre',
             'tag',
             'rating',
+            'is_favorite',
         )
 
     def get_rating(self, obj):
         return obj.movie_rate.all().aggregate(Avg('rating'))
+    
+    def get_is_favorite(self, obj):
+        user = self.context.get('request').user
+        if user.is_anonymous:
+            return False
+        return user.favorite.filter(movie=obj).exists()
 
 
 class MoviesSerializer(serializers.ModelSerializer):
@@ -191,12 +199,35 @@ class MoviesSerializer(serializers.ModelSerializer):
         return ShowMovieSerializer(instance, context=context).data
 
 
-class RatingSerializer(serializers.ModelSerializer):                          # сослаться на shortshowmovieserializer
+class ShowFavoriteSerializer(serializers.ModelSerializer):
     '''
-    Сериализатор для просмотра рейтинга фильма.
+    Сериализатор для отображения избранных фильмов.
     '''
 
-    movie = serializers.SlugRelatedField(                                      # вместо string field сделать primary key
+    movie = serializers.SlugRelatedField(
+        slug_field='name',
+        read_only=True,
+    )
+    user = serializers.SlugRelatedField(
+        slug_field='username',
+        read_only=True
+    )
+
+    class Meta:
+        model = FavoriteMovie
+        fields = (
+            'id',
+            'user',
+            'movie',
+        )
+
+
+class ShowRatingSerializer(serializers.ModelSerializer):
+    '''
+    Сериализатор для отображения рейтинга фильма.
+    '''
+
+    movie = serializers.SlugRelatedField(
         slug_field='name',
         read_only=True,
     )
@@ -215,27 +246,42 @@ class RatingSerializer(serializers.ModelSerializer):                          # 
         )
 
 
-class ShowFavoriteSerializer(serializers.ModelSerializer):
+class RatingSerializer(serializers.ModelSerializer):
     '''
-    Сериализатор для отображения избранных фильмов.
+    Сериализатор для рейтинга фильма.
     '''
-    
-    movie = serializers.SlugRelatedField(
-        slug_field='name',
-        read_only=True,
-    )
-    user = serializers.SlugRelatedField(
-        slug_field='username',
-        read_only=True
-    )
 
     class Meta:
-        model = FavoriteMovie
+        model = MovieRate
         fields = (
             'id',
-            'user',
-            'movie'
+            'movie',
+            #'user',
+            'rating',
         )
+
+    def validate(self, data):
+        movie = data['movie']
+        rating = data['rating']
+        request = self.context.get('request')
+        if not request or request.user.is_anonymous:
+            return False
+        if MovieRate.objects.filter(
+            movie=movie,
+            user=request.user,
+            rating=rating
+        ).exists():
+            raise serializers.ValidationError(
+                {
+                    'status': 'Вы уже ставили оценку фильму.'
+                }
+            )
+        return data
+
+    def to_representation(self, instance):
+        request = self.context.get('request')
+        context = {'request': request}
+        return ShowRatingSerializer(instance, context=context).data
 
 
 class FavoriteSerializer(serializers.ModelSerializer):
