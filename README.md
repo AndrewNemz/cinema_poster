@@ -27,4 +27,63 @@
 + Ресурс cinemas: Кинотеатры.
 + Ресурс movies: Фильмы. Один фильм может показываться в нескольких кинотеатрах. Имеет один тэг(16+), но может иметь несколько жанров (приключение, фантастика).
 
+# Как запустить проект:
+### Клонировать репозиторий и перейти в него в командной строке:
 
+```
+git clone https://github.com/Turianpy/api_yamdb
+
+cd api_yamdb
+```
+
+### Cоздать и активировать виртуальное окружение:
+
+```
+python -m venv venv
+```
+
+### Для *nix-систем:
+
+```
+source venv/bin/activate
+```
+
+### Для windows-систем:
+
+```
+source venv/Scripts/activate
+```
+
+### Установить зависимости из файла requirements.txt:
+
+```
+python -m pip install --upgrade pip
+pip install -r requirements.txt
+```
+
+### Выполнить миграции:
+
+```
+cd api_yamdb
+python3 manage.py migrate
+```
+
+### Создать суперпользователя (для раздачи прав админам):
+
+```
+python manage.py createsuperuser
+```
+
+### Запустить проект:
+
+```
+python manage.py runserver
+```
+
+### Сам проект и админ-панель искать по адресам:
+
+```
+http://127.0.0.1:8000
+
+http://127.0.0.1:8000/admin
+```
