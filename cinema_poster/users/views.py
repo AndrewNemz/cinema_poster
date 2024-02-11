@@ -1,7 +1,8 @@
 from djoser.views import UserViewSet
-from .serializers import CustomUserSerializer
-from .models import User
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
+
+from users.models import User
+from users.serializers import CustomUserSerializer
 
 
 class CustomUserViewSet(UserViewSet):

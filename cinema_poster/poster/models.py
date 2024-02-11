@@ -1,5 +1,6 @@
-from django.db import models
 from django.core import validators
+from django.db import models
+
 from users.models import User
 
 
@@ -46,7 +47,7 @@ class Tag(models.Model):
 
     def __str__(self):
         return self.name
-    
+
 
 class Genre(models.Model):
     '''
@@ -69,11 +70,11 @@ class Genre(models.Model):
 
     def __str__(self):
         return self.name
-        
+
 
 class Movie(models.Model):
     '''
-    Модель для информации и фильме.    
+    Модель для информации и фильме.
     '''
 
     name = models.TextField(
@@ -103,7 +104,7 @@ class Movie(models.Model):
     class Meta:
         verbose_name = 'Фильм'
         verbose_name_plural = 'Фильмы'
-        ordering = ['-name', '-author',]
+        ordering = ['-name', '-author', ]
 
     def __str__(self):
         return self.name
@@ -136,9 +137,9 @@ class Cinema(models.Model):
     )
 
     class Meta:
-        verbose_name='Кинотеатр'
-        verbose_name_plural='Кинотеатры'
-        ordering = ['-name',]
+        verbose_name = 'Кинотеатр'
+        verbose_name_plural = 'Кинотеатры'
+        ordering = ['-name', ]
 
     def __str__(self):
         return self.name
@@ -188,14 +189,14 @@ class MovieRate(models.Model):
         related_name='movie_rate',
         on_delete=models.CASCADE,
     )
-    
+
     user = models.ForeignKey(
         User,
         verbose_name='Пользователь',
         on_delete=models.CASCADE,
         related_name='movie_rate'
     )
-    
+
     rating = models.IntegerField(
         validators=[
             validators.MinValueValidator(
@@ -249,8 +250,8 @@ class FavoriteMovie(models.Model):
                 name='unique_favorite_movie',
             ),
         )
-        verbose_name='Избранный фильм'
-        verbose_name_plural='Избранные фильмы'
+        verbose_name = 'Избранный фильм'
+        verbose_name_plural = 'Избранные фильмы'
 
     def __str__(self):
         return self.movie.name

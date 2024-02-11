@@ -1,7 +1,7 @@
 from django.contrib import admin
 
-from .models import (Tag, Genre, Movie, 
-                    Cinema, CinemaMovies, MovieRate, FavoriteMovie)
+from .models import (Cinema, CinemaMovies, FavoriteMovie, Genre, Movie,
+                     MovieRate, Tag)
 
 
 @admin.register(Tag)

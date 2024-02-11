@@ -1,15 +1,16 @@
-from rest_framework import viewsets
 from django.shortcuts import get_object_or_404
-from rest_framework import status
-from rest_framework.response import Response
 from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework import status, viewsets
 from rest_framework.decorators import action
-from rest_framework.permissions import (SAFE_METHODS, AllowAny,
-                                        IsAuthenticated, IsAdminUser, IsAuthenticatedOrReadOnly)
-from poster.models import Tag, Genre, Cinema, Movie, MovieRate, FavoriteMovie
-from poster.serielizers import TagSerializer, GenreSerializer, CinemasSerializer, MoviesSerializer, RatingSerializer, FavoriteSerializer, ShowMovieSerializer
-from poster.permissions import IsAdminOrReadOnly, IsOwnerOrReadOnly
+from rest_framework.permissions import IsAdminUser, IsAuthenticated
+from rest_framework.response import Response
+
+from poster.models import Cinema, FavoriteMovie, Genre, Movie, MovieRate, Tag
 from poster.pagination import CustomPagination
+from poster.permissions import IsAdminOrReadOnly, IsOwnerOrReadOnly
+from poster.serielizers import (CinemasSerializer, FavoriteSerializer,
+                                GenreSerializer, MoviesSerializer,
+                                RatingSerializer, TagSerializer)
 
 
 class TagsViewSet(viewsets.ModelViewSet):
@@ -40,7 +41,7 @@ class CinemasViewSet(viewsets.ModelViewSet):
     Списки кинотеатров доступны всем.
     Post запросы только для admin.
     '''
-    
+
     queryset = Cinema.objects.all()
     serializer_class = CinemasSerializer
     permission_classes = (IsAdminOrReadOnly,)
@@ -68,7 +69,7 @@ class MoviesViewSet(viewsets.ModelViewSet):
         if is_favorite is not None:
             queryset = queryset.filter(favorite=is_favorite)
         return queryset
-    
+
     @staticmethod
     def post_method_for_actions(request, pk, serializers):
         data = {'user': request.user.id, 'movie': pk}
@@ -84,7 +85,7 @@ class MoviesViewSet(viewsets.ModelViewSet):
         model_obj = get_object_or_404(model, user=user, movie=movie)
         model_obj.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
-    
+
     @action(
         detail=True,
         methods=["POST"],

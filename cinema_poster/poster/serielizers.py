@@ -1,8 +1,8 @@
-from rest_framework import serializers
-from rest_framework.fields import SerializerMethodField
-from django.shortcuts import get_object_or_404
 from django.db.models import Avg
-from poster.models import Tag, Genre, MovieRate, Cinema, Movie, CinemaMovies, FavoriteMovie
+from rest_framework import serializers
+
+from poster.models import (Cinema, CinemaMovies, FavoriteMovie, Genre, Movie,
+                           MovieRate, Tag)
 
 
 class TagSerializer(serializers.ModelSerializer):
@@ -75,12 +75,12 @@ class CinemasSerializer(serializers.ModelSerializer):
             if movie in movies_list:
                 raise serializers.ValidationError(
                     {
-                        'movies': f'В базе кинотеатра уже есть фильм {movie["name"]}'
+                        'movies': f'В кинотеатра есть фильм {movie["name"]}'
                     }
                 )
             movies_list.append(movie)
         return data
-    
+
     @staticmethod
     def create_movies(movies, cinema):
         movies_list = []
@@ -129,7 +129,7 @@ class ShowMovieSerializer(serializers.ModelSerializer):
 
     def get_rating(self, obj):
         return obj.movie_rate.all().aggregate(Avg('rating'))
-    
+
     def get_is_favorite(self, obj):
         user = self.context.get('request').user
         if user.is_anonymous:
@@ -170,10 +170,10 @@ class MoviesSerializer(serializers.ModelSerializer):
         for gen in genre:
             if gen in genres_list:
                 raise serializers.ValidationError(
-                {
-                    'genre': 'У фильма уже есть такой жанр.'
-                }
-            )
+                    {
+                        'genre': 'У фильма уже есть такой жанр.'
+                    }
+                )
             genres_list.append(gen)
         return data
 
@@ -192,7 +192,7 @@ class MoviesSerializer(serializers.ModelSerializer):
         instance.genre.clear()
         self.create_genres(validated_data.pop('genre'), instance)
         return super().update(instance, validated_data)
-    
+
     def to_representation(self, instance):
         request = self.context.get('request')
         context = {'request': request}
@@ -256,13 +256,11 @@ class RatingSerializer(serializers.ModelSerializer):
         fields = (
             'id',
             'movie',
-            #'user',
             'rating',
         )
 
     def validate(self, data):
         movie = data['movie']
-        rating = data['rating']
         request = self.context.get('request')
         if not request or request.user.is_anonymous:
             return False
@@ -290,7 +288,7 @@ class FavoriteSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = FavoriteMovie
-        fields =(
+        fields = (
             'id',
             'user',
             'movie'
@@ -311,7 +309,7 @@ class FavoriteSerializer(serializers.ModelSerializer):
                 }
             )
         return data
-    
+
     def to_representation(self, instance):
         request = self.context.get('request')
         context = {'request': request}

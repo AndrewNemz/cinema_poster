@@ -30,7 +30,7 @@ class User(AbstractUser):
         blank=True,
     )
     role = models.CharField(
-        'Роль', 
+        'Роль',
         max_length=20,
         choices=USER_ROLES,
         default=USER
